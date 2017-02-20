@@ -15,19 +15,19 @@ classdef SeqObsModel
     
     % --------------------------------------------------- ABSTRACT
     % Any subclass needs to implement all these methods
-    %function obj = setPrior( obj, varargin );        
+    %function obj    = setPrior( obj, varargin );        
     %function Xstats = getXSuffStats(obj, Xkk );
         
-    %function str = getParamDescr( obj, PP ); end
+    %function str    = getParamDescr( obj, PP ); end
         
-    %function PN  = getPosteriorParams(obj, Xstats ); end
+    %function PN     = getPosteriorParams(obj, Xstats ); end
        
     %function [theta,PP] = sampleTheta_FromParams(obj,PP); end
     %function [theta,PN] = sampleTheta(obj,Xkk); end
         
-    %function logPr = calcLogPrTheta(obj, theta,PP); end
+    %function logPr     = calcLogPrTheta(obj, theta,PP); end
     %function logSoftEv = calcLogSoftEv(obj, Xseq, kIDs ); end
-    %function logPr = calcMargPrData(obj, data, stateSeq ); end
+    %function logPr     = calcMargPrData(obj, data, stateSeq ); end
    
     methods
         % ===================================================== SET methods

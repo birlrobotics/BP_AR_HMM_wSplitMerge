@@ -1,4 +1,4 @@
-function [data,PsiTrue] = genToySeqData_ARGaussian( nStates, nDim, N, T, R)
+function [data,PsiTrue] = gen_ARGaussian( nStates, nDim, N, T, R)
 % INPUTS ----------------------------------------------------------
 %    nStates = # of available Markov states
 %    nDim = number of observations at each time instant

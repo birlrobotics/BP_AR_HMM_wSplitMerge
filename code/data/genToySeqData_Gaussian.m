@@ -1,9 +1,9 @@
 function [data, PsiTrue] = genToySeqData_Gaussian( nStates, nDim, N, T, pIncludeFeature)
 % INPUTS ----------------------------------------------------------
-%    nStates = # of available Markov states
-%    nDim = number of observations at each time instant
-%    N = number of time series objects
-%    T = length of each time series
+%    nStates    = # of available Markov states
+%    nDim       = number of observations at each time instant
+%    N          = number of time series objects
+%    T          = length of each time series
 % OUTPUT ----------------------------------------------------------
 %    data  :  SeqData object
 
@@ -134,12 +134,13 @@ end
 curStream = RandStream.getGlobalStream();
 curStream.State = entryState;
 
+% ---------------------------------------------------------  Copute Psi
 PsiTrue.F = zeros(N, nStates);
 for ii = 1:N
     PsiTrue.F(ii, unique( data.zTrue(ii) ) ) = 1;
 end
 for kk = 1:nStates
-    PsiTrue.theta(kk).mu = Px.Mu(kk,:);
+    PsiTrue.theta(kk).mu = Px.Mu(kk,:); 
     PsiTrue.theta(kk).invSigma = inv( Px.Sigma(:,:,kk) );
 end
 PsiTrue.Pz = Pz;

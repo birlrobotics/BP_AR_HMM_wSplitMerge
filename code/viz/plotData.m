@@ -7,7 +7,7 @@ xs = 1:T;
 ys = linspace( -3, 3, M);
 
 hold all;
-hIM = imagesc( xs, ys, repmat(data.zTrue(ii), M, 1), [1 max( data.zTrueAll)] );
+hIM = imagesc( xs, ys, repmat(data.zTrue(ii), M, 1), [1 max( data.zTrueAll)] ); % Indicate which states correspond to which timesteps.
 set( hIM, 'AlphaData', 0.65 );
 X = data.seq(ii);
 plot( xs, X(1,:), 'k.-' );
