@@ -4,8 +4,8 @@
 % Extract a given data file from multiple folders
 %=========================================================================================
 % Input:
-%   - ParentDir:    main directory path to data results
-%   - dataTyep:     name of data file that we want to extract
+%   - base_dir:     main directory path to data results
+%   - dataSource:   the type of data we want to include (wrenches, joing angles, etc). From the possible terms: [R_Torques.dat, R_Angles.dat, R_CartPos.dat]
 %   - data_params:  data structure containing VAR order, #States,#Dims,#Trials,timeSteps
 % Output:
 %   - data:         contains observations (N,dim*numTrials).
@@ -17,16 +17,24 @@ global DB_FILTER;
 
 %% Initialization of local structures
 numTrials=data_params.N;
-timeSteps = 0;
+timeStepsVec=zeros(1,numTrials);
 
 data = struct('obs',{});
-data(100).obs=[];
+data(numTrials).obs=[];
 folderNames = cell(numTrials,1); % Preallocate some folder size
 
 %% Randomly select folder data
-cd(base_dir);
 folders = dir(base_dir);
 folder_len=length(folders);
+
+% Remove non-folders
+for k = folder_len:-1:1
+    if ~folders(k).isdir || folders(k).name(1) == '.'    
+        folders(k) = [ ];
+        continue
+    end
+end
+
 if(numTrials>folder_len)
     numTrials=folder_len;
 end
@@ -42,7 +50,7 @@ for i=1:numTrials
         
         % Switch to a folder
         fn = strcat(base_dir,folders(id(i)).name,'/');
-        cd(fn);
+        cd(fn); % TODO: remove cd, just refer to its path.
         
         % Load the data not including time.
         for j=1:length(dataSource)
@@ -51,13 +59,12 @@ for i=1:numTrials
             
             % Data
             d = load(filename);
+            if( isempty(d) )
+                fprintf('Data from the %ith trial is empty',j)
+                exit;
+            end
             d = d(:,2:end);             % Do not include the time column
             len_d = length(d);
-            % Record largest number of time-steps in all series
-            if len_d>timeSteps
-                data_params.T=len_d;        % # of time-steps
-                timeSteps=len_d;
-            end
             
             if(DB_FILTER)
                 if strcmp(dataSource(j), 'R_Torques')
@@ -65,10 +72,19 @@ for i=1:numTrials
                 end
             end
             
-            % Insert data into an observation element in the data_structure.
-            data(i).obs = d;
+            % Insert data into an observation element in the data_structure in a row-wise fashion.
+            data(i).obs = d';        
+            timeStepsVec(i)=len_d;
             
-        end % Go through all data sources        
+        end % Go through all data sources
     end     % Validate folders
 end         % Go through all data trials
+
+% Save the number of time-steps per trial
+data_params.T=timeStepsVec;
+
+% Get the total number of time-steps for all trials.
+%for i=1:data_params.N
+    % data_params.T=data_params.T+size(data(i).obs,2); 
+%end
 end         % End function

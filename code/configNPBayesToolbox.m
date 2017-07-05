@@ -1,4 +1,4 @@
-restoredefaultpath;
+%restoredefaultpath;
 addpath( genpath('.') );
 lightspeedDir = getUserSpecifiedPath('LightspeedLibrary');
 addpath( genpath( lightspeedDir ) );

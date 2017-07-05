@@ -10,14 +10,16 @@
 % See QuickStartGuide.pdf in doc/ for details on configuring the toolbox
 function bp_ar_hmm_contact_tasks(StrategyType)
 
-% ============================================================   GLOBALS
+%% ============================================================   GLOBALS
 global DB_FILTER;
 global DB_VISUALIZE;
 
 DB_FILTER   =0;
 DB_VISUALIZE=0;
 
-% ============================================================   LOAD DATA!
+numMCMCIterations=100;
+
+%% ============================================================   LOAD DATA
 fprintf( 'Load task data\n' );
 
 % Set Path, Strategy, and get folders and data. 
@@ -38,33 +40,42 @@ data_params=struct('flag',      1,...
                    'R',         1,...
                    'nStates',   4,...
                    'nDim',      6,...
-                   'N',         10,...
-                   'T',         0);
+                   'N',         5,...
+                   'T',         []);
 data_params.flag=1;
 if(data_params.flag)
     % data_params_p = libpointer('struct',data_params);
 
-    % Compile the data from all experiments for which we will compute parameters \theta.    
+%% ============================================================   EXTRACT-DATA
+    % Extract data from which the covariance will be computed.    
     [data, data_params] = extract_data_from_folders(base_dir, dataSource, data_params);
     % TODO: still need to recover data_params.T either through output or ptr
     
-% ============================================================   DATA PRE-PROCESSING  
+%% ============================================================   DATA PRE-PROCESSING  
     % Change the mean of all trial data to zero and compute the covariance.
-    [data,meanSigma]=data_pre_processing(data,data_params_p);
+    [mu,meanSigma]=data_pre_processing(data,data_params);
 
-% ============================================================   GEN AR-HMM PARAMS    
-    [data,TruePsi] = gen_ARGaussian(data,meanSigma,data_params);
+%% ============================================================   GEN AR-HMM PARAMS    
+    [data,TruePsi] = gen_ARGaussian(data,mu,meanSigma,data_params);
     
 end
 
-% ============================================================   VISUALIZE  
-% Visualize the raw data time series
-%   with background colored by "true" hidden state
+%% ============================================================   VISUALIZE  
+% Visualize the raw data time series with background colored by "true" hidden state
+% How many times series do you want to see?
+numTimeSeries=3;
+if numTimeSeries>data_params.N
+    numTimeSeries=data_params.N;
+end
+
 figure( 'Units', 'normalized', 'Position', [0.1 0.25 0.75 0.5] );
-subplot(2, 1, 1 );
-plotData( data, 1 );
-subplot(2, 1, 2 );
-plotData( data, 3 );
+for i=1:numTimeSeries
+    % Plot numTimeSeries randomly from the total number of time series
+    list=randperm(data_params.N);
+    list=list(1:numTimeSeries);
+    subplot(numTimeSeries, 1, i );
+    plot_allData( data, list(i) );
+end
 
 % Visualize the "true" generating parameters
 % Feat matrix F (binary 5 x 4 matrix )
@@ -81,11 +92,11 @@ end
 pause;
 
 % -------------------------------------------------   RUN MCMC INFERENCE!
-modelP = {'bpM.gamma', 2}; % Set the model as a BetaProcess model. 2nd arg is dimension
-algP   = {'Niter'               , 100, ...
-          'HMM.doSampleHypers'  ,   0, ... 
-          'BP.doSampleMass'     ,   0, ...
-          'BP.doSampleConc'     ,   0}; 
+modelP = {'bpM.gamma', 2};        % Set the model as a BetaProcess model. 2nd arg is dimension: data_params.nDim
+algP   = {'Niter'               , numMCMCIterations, ...
+          'HMM.doSampleHypers'  ,               0, ...       % Sample hyperparameters? 
+          'BP.doSampleMass'     ,               0, ...       % Sample probability mass?
+          'BP.doSampleConc'     ,               0};          % Sample conentration parameters?
 % Start out with just one feature for all objects
 initP  = {'F.nTotal', 1}; 
 CH = runBPHMM( data, modelP, {1, 1}, algP, initP );
@@ -100,40 +111,62 @@ CH = runBPHMM( data, modelP, {1, 1}, algP, initP );
 % For example, the true behavior #1 may be inferred behavior #4
 
 % So we'll need to align recovered parameters (separately at each iter)
-% Let's just look at iter 90 and iter 100
+% Look at two iterations (or more) for comparison.
+% -------------------------------------------------
+% Which chain steps do you want to check?
+stepA=100; 
+stepB=150; 
+step=10;
+% -------------------------------------------------
+if stepA>=numMCMCIterations
+    num10Blocks=numMCMCIterations/step;
+    stepA=floor(num10Blocks*0.5*step);
+end
+if stepB>numMCMCIterations
+    stepB=numMCMCIterations;
+end
 
-Psi90 = CH.Psi( CH.iters.Psi == 90 );
-alignedPsi90 = alignPsiToTruth_OneToOne( Psi90, data );
+PsiA = CH.Psi( CH.iters.Psi == stepA );
+alignedPsiA = alignPsiToTruth_OneToOne( PsiA, data );
 
-Psi100 = CH.Psi( CH.iters.Psi == 100 );
-alignedPsi100 = alignPsiToTruth_OneToOne( Psi100, data );
+PsiB = CH.Psi( CH.iters.Psi == stepB );
+alignedPsiB = alignPsiToTruth_OneToOne( PsiB, data );
 
 
-% Estimated feature matrix F
+%------------------------------------------------- Estimated feature matrix F
 figure( 'Units', 'normalized', 'Position', [0 0.5 0.5 0.5] );
+titleStringA=strcat('F (@ iter ', num2str(stepA), ')' );
+titleStringB=strcat('F (@ iter ', num2str(stepB), ')' );
 subplot(1,2,1);
-plotFeatMat( alignedPsi90 );
-title( 'F (@ iter 90)', 'FontSize', 20 );
+plotFeatMat( alignedPsiA );
+title( titleStringA, 'FontSize', 20 );
 subplot(1,2,2);
-plotFeatMat( alignedPsi100 );
-title( 'F (@ iter 100)', 'FontSize', 20 );
+plotFeatMat( alignedPsiB );
+title( titleStringB, 'FontSize', 20 );
 
-% Estimated emission parameters
+%------------------------------------------------- Estimated emission parameters
 figure( 'Units', 'normalized', 'Position', [0.5 0.5 0.5 0.5] );
+titleStringA=strcat('Theta (@ iter ', num2str(stepA), ')' );
+titleStringB=strcat('Theta (@ iter ', num2str(stepB), ')' );
 subplot(1,2,1);
-plotEmissionParams( Psi90 );
-title( 'Theta (@ iter 90)', 'FontSize', 20 );
+plotEmissionParams( PsiA );
+title( titleStringA, 'FontSize', 20 );
 subplot(1,2,2);
-plotEmissionParams( Psi100 );
-title( 'Theta (@ iter 100)', 'FontSize', 20 );
+plotEmissionParams( PsiB );
+title( titleStringB, 'FontSize', 20 );
 
-% Estimated state sequence
-plotStateSeq( alignedPsi100, [1 3] );
+%------------------------------------------------- Estimated state sequence
+plotStateSeq( alignedPsiB, list );
 set( gcf, 'Units', 'normalized', 'Position', [0.1 0.25 0.75 0.5] );
-subplotHandles = findobj(gcf,'type','axes');
-title(min(subplotHandles), 'Est. Z : Seq 1', 'FontSize', 20 );
-title(max(subplotHandles), 'Est. Z : Seq 3', 'FontSize', 20 );
 
+titleString=strcat('Plot for sequenes: ', num2str(list), '.');
+title(titleString, 'FontSize', 20 );
+
+% subplotHandles = findobj(gcf,'type','axes');
+% title(subplotHandles, 'Est. Z : Seq 1', 'FontSize', 20 );
+% title(subplotHandles, 'Est. Z : Seq 3', 'FontSize', 20 );
+
+%--------------------------------------------------------------------------------------------------
 fprintf( 'Remember: actual labels for behaviors are *irrelevant* from model perspective\n');
 fprintf( '  what matters: *aligned* behaviors consistently assigned to same datapoints as ground truth\n' );
 end

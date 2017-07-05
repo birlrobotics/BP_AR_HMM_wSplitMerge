@@ -21,7 +21,17 @@ fprintf( 'Creating some toy data...\n' );
 %     emission distribution (with 2 dimensions).
 % Remember that data is a SeqData object that contains
 %   the true state sequence labels for each time series
-[data, TruePsi] = genToySeqData_Gaussian( 4, 2, 5, 500, 0.5 ); 
+ar_flag=1;
+if (~ar_flag)
+    [data, TruePsi] = genToySeqData_Gaussian( 4, 2, 5, 500, 0.5 ); 
+else
+   R=1;
+   nStates=4;
+   nDim=2;
+   N=5;
+   T=500;
+[data,PsiTrue] = genToySeqData_ARGaussian( nStates, nDim, N, T, R);
+end
 
 % Visualize the raw data time series
 %   with background colored by "true" hidden state

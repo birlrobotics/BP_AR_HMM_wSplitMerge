@@ -2,7 +2,7 @@ function model = defaultModelParams_BPHMM( data )
 
 switch data.getObsType()
     case 'Gaussian'                            
-        model.obsM.precMu   = 0;            % precMu            : precision parameter for mean
+        model.obsM.precMu   = 1;            % precMu            : precision parameter for mean
         model.obsM.degFree  = 3;            % degFree           : # deg of freedom
         model.obsM.Scoef    = 1;            % Scoef             : scalar multiplier for Scale Matrix
         model.obsM.doEmpCovScalePrior = 0;  % doEmpCovScalePrior: boolean.
@@ -13,15 +13,15 @@ switch data.getObsType()
         model.obsM.doEmpCovFirstDiff    = 1;
         model.obsM.degFree              = data.D+2; % D+2. Start with 6 degrees of freedom. Could go to 12.
         if ~isempty( strmatch( '13_29',data.seqNames )  )
-            model.obsM.Scoef            = 0.5; % Previous work used 5. With better inference, need not be so vague
+            model.obsM.Scoef            = 0.5; % Default=0.5 Previous work used 5. With better inference, need not be so vague
         else
-            model.obsM.Scoef            = 0.5;
+            model.obsM.Scoef            = 0.5; % Default=0.5 Previous work used 5. With better inference, need not be so vague
         end
 end
 
 % ------------------------------- HMM params
 model.hmmM.alpha = 1;             % HMM Transition Model: Prior
-model.hmmM.kappa = 25;
+model.hmmM.kappa = 50;            % Default 25
 model.hmmM.prior.a_alpha = 0.01;
 model.hmmM.prior.b_alpha = 0.01;
 model.hmmM.prior.a_kappa = 0.01;
