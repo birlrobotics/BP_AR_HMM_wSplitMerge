@@ -21,7 +21,7 @@ fprintf( 'Creating some toy data...\n' );
 %     emission distribution (with 2 dimensions).
 % Remember that data is a SeqData object that contains
 %   the true state sequence labels for each time series
-ar_flag=1;
+ar_flag=0;
 if (~ar_flag)
     [data, TruePsi] = genToySeqData_Gaussian( 4, 2, 5, 500, 0.5 ); 
 else
@@ -34,7 +34,7 @@ else
 end
 
 % Visualize the raw data time series
-%   with background colored by "true" hidden state
+% with background colored by "true" hidden state
 figure( 'Units', 'normalized', 'Position', [0.1 0.25 0.75 0.5] );
 subplot(2, 1, 1 );
 plotData( data, 1 );
@@ -51,8 +51,6 @@ title( 'True Feature Matrix', 'FontSize', 20 );
 figure('Units', 'normalized', 'Position', [0.5 0.5 0.5 0.5] );
 plotEmissionParams( TruePsi.theta, data );
 title( 'True Emission Params (with all data points)', 'FontSize', 20 );
-
-pause;
 
 % -------------------------------------------------   RUN MCMC INFERENCE!
 modelP = {'bpM.gamma', 2}; 

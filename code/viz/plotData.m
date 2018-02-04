@@ -10,8 +10,9 @@ hold all;
 hIM = imagesc( xs, ys, repmat(data.zTrue(ii), M, 1), [1 max( data.zTrueAll)] ); % Indicate which states correspond to which timesteps.
 set( hIM, 'AlphaData', 0.65 );
 X = data.seq(ii);
-plot( xs, X(1,:), 'k.-' );
-plot( xs, X(2,:), 'r.-' );
+plot( xs, X(:,:));
+%plot( xs, X(1,:), 'k.-' );
+%plot( xs, X(2,:), 'r.-' );
 title( ['Sequence ' num2str(ii)], 'FontSize', 20 );
 
 axis( [1 T ys(1) ys(end)] );

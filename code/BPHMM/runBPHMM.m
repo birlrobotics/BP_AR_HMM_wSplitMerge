@@ -50,6 +50,14 @@ else
     data = loadSeqData( datasetName, Preproc );
 end
 
+% Visualize the raw data time series
+% with background colored by "true" hidden state
+figure( 'Units', 'normalized', 'Position', [0.1 0.25 0.75 0.5] );
+subplot(2, 1, 1 );
+plotData( data, 1 );
+subplot(2, 1, 2 );
+plotData( data, 3 );
+
 if outParams.doPrintHeaderInfo
     fprintf('Dataset Summary: \n\t %d time series items \n', data.N );
     fprintf('\t   # timesteps per seq:  min %d, median %.1f, max %d ) \n', min(data.Ts), median(data.Ts), max(data.Ts));

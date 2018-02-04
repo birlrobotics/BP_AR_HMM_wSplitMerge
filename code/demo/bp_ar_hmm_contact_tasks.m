@@ -23,7 +23,7 @@ numMCMCIterations=100;
 fprintf( 'Load task data\n' );
 
 % Set Path, Strategy, and get folders and data. 
-path='/media/vmrguser/hdd/school/research/AIST/Results/'; % The path at which you want to save the main body of results. Folders will be created within this folder for different strategyTypes.
+path='/home/vmrguser/research/AIST/Results/'; % The path at which you want to save the main body of results. Folders will be created within this folder for different strategyTypes.
 strat=AssignDir(StrategyType);
 if(exist(path,'dir')~=7)
     fprintf('Data path does not exist. Please check your path.')

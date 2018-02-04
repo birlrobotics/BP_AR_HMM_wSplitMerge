@@ -15,7 +15,8 @@
 #$ -e ../../logs/$JOB_ID.$TASK_ID.err
 
 # Edit this line!
-PROJHOME=/home/mhughes/git/NPBayesHMM/code/
+PROJHOME=/home/vmrguser/matlab/probability/nonParametricMethods/foxUWash/NPBayesHMM/code/
+echo "PROJECT_HOME_PATH" PROJHOME
 
 # ======================================================= SANITIZE INPUT
 EXPECTED_ARGS=3
@@ -33,7 +34,7 @@ TimeLimit=$3
 if [[ ! $SGE_TASK_ID && ${SGE_TASK_ID-_} ]]
 then
   # if not deployed on the grid, JOB_ID and SGE_TASK_ID are undefined
-  #    so we manually set both to make sure this works
+  # so we manually set both to make sure this works
   JOB_ID=1
   SGE_TASK_ID=1
 fi
@@ -42,7 +43,8 @@ echo "JOB ID: " $JOB_ID
 echo "SGE TASK ID: "$SGE_TASK_ID
 
 # ======================================================= RUN GRID JOB
-matlabpath=/local/projects/matlab/current/bin/
+# matlabpath=/local/projects/matlab/current/bin/
+matlabpath=/home/vmrguser/matlab/R2016b/bin/
 export LD_LIBRARY_PATH=$matlabpath;
 #MYPREFIX="dbstop if error; cd $PROJHOME; addpath( genpath( '.'));"
 MYPREFIX="cd $PROJHOME; addpath( genpath( '.'));"

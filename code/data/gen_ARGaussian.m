@@ -66,7 +66,7 @@ for k = 1:dp.nStates
     if k~=dp.nStates
         Pz(k, k+1) = (1-pSelfTrans);
     else
-        Pz(k,k)=1
+        Pz(k,k)=1;
     end
 end
 
@@ -83,7 +83,7 @@ A    = zeros( dp.nDim, dp.nDim*dp.R, dp.nStates);
 Sigma=zeros( dp.nDim, dp.nDim*dp.R, dp.nStates);
 
 nu       = dp.nDim+2;                   % inverse Wishart degrees of freedom, nu: typically 2.
-nu_delta = (nu-dp.nDim-1)*meanSigma;    % inverse wishart Sigma
+nu_delta = (nu-dp.nDim-1)*meanSigma;    % used to compute the inverse wishart Sigma
 
 % Covariance amtrix
 % My2DSigs(:,:,1) = [15 0; 0 0.5];
@@ -100,10 +100,10 @@ else
     muteVec = 1;
 end
 
-% Create the A matrix
+% Instantiate the A matrix
 m=dp.nDim*dp.R;
 for kk = 1:dp.nStates
-    A(:,:,kk)     = inv(diag( 5*ones(1,m) ));
+    A(:,:,kk)     = inv(diag( 5*ones(1,m) ));   % How might one know how to set up these coefficients to start of?
     Sigma(:,:,kk) = iwishrnd( nu_delta,  nu  ); % Sigma depends on nu_delta which in turn depends on meanSigma, which was derived from the raw data.
 %     for dd = 1:dp.nDim
 %          A(dd, (dd:dp.nDim:dp.nDim*dp.R), kk) = as(kk)*muteVec;         

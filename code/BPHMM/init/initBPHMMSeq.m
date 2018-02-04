@@ -139,5 +139,5 @@ checkPsiFeatureConsistency( Psi );
 
 
 % ---------------------------------------------------------  Reset stream
-curStream = RandStream.getDefaultStream();
+curStream = RandStream.getGlobalStream();
 curStream.State = entryState;

@@ -48,7 +48,7 @@ algP(end+1:end+2) = {'TimeLimit', TimeLimit};
 
 
 switch initName
-    case 'cheat'
+    case 'cheat' % use a known set of ground-truth labels to initialize the state sequence
         initP = {'InitFunc', @initBPHMMCheat, 'Cheat.nRepeats', 1};
     case {'seq','seq2'}
         initP = {'InitFunc', @initBPHMMSeq, 'F.nUniquePerObj', 2, 'nSubsetObj', 20};
